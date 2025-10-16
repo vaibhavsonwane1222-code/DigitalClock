@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Custom Digital Clock</title>
+<style>
+  body {
+    background: linear-gradient(135deg, #1a1a2e, #162447);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-family: 'Arial', sans-serif;
+    color: white;
+  }
+  .clock {
+    background: rgba(0,0,0,0.6);
+    padding: 30px 50px;
+    border-radius: 20px;
+    text-align: center;
+    box-shadow: 0 0 20px #00f0ff;
+    margin-bottom: 20px;
+  }
+  .time {
+    font-size: 60px;
+    letter-spacing: 5px;
+  }
+  .am-pm {
+    font-size: 24px;
+    vertical-align: super;
+    margin-left: 10px;
+  }
+  .controls input, .controls select {
+    padding: 5px;
+    margin: 5px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: none;
+  }
+  .set-btn {
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    background: linear-gradient(45deg, #00f0ff, #ff00ff);
+    color: white;
+    font-weight: bold;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    transition: all 0.3s ease;
+}
+
+.set-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+    background: linear-gradient(45deg, #ff00ff, #00f0ff);
+}
+
+  .controls button {
+    padding: 8px 15px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    background: #00f0ff;
+    color: black;
+    font-weight: bold;
+  }
+</style>
+</head>
+<body>
+
+<div class="clock">
+  <div class="time" id="time">00:00:00</div>
+  <div class="am-pm" id="ampm">AM</div>
+</div>
+
+<div class="controls">
+  <input type="number" id="hours" placeholder="HH" min="1" max="12">
+  <input type="number" id="minutes" placeholder="MM" min="0" max="59">
+  <input type="number" id="seconds" placeholder="SS" min="0" max="59">
+  <select id="ampmSelect">
+    <option value="AM">AM</option>
+    <option value="PM">PM</option>
+  </select>
+  <button class="set-btn" onclick="setCustomTime()">Set Time</button>
+
+</div>
+
+<script>
+let customTime = null;
+
+function updateClock() {
+  let now = customTime ? new Date(customTime) : new Date();
+
+  let hour = now.getHours();
+  let min = now.getMinutes();
+  let sec = now.getSeconds();
+
+  let ampm = hour >= 12 ? "PM" : "AM";
+  if (customTime) ampm = document.getElementById("ampmSelect").value;
+
+  hour = hour % 12;
+  hour = hour ? hour : 12; // 0 -> 12
+  if (customTime) hour = parseInt(document.getElementById("hours").value) || 0;
+
+  min = customTime ? parseInt(document.getElementById("minutes").value) || 0 : min;
+  sec = customTime ? parseInt(document.getElementById("seconds").value) || 0 : sec;
+
+  // Blinking colon
+  let colon = sec % 2 === 0 ? ":" : " ";
+
+  document.getElementById("time").textContent = `${hour<10?'0'+hour:hour}${colon}${min<10?'0'+min:min}${colon}${sec<10?'0'+sec:sec}`;
+  document.getElementById("ampm").textContent = ampm;
+
+  // Increase custom time by 1 second
+  if (customTime) customTime = new Date(customTime.getTime() + 1000);
+}
+
+// Set custom time function
+function setCustomTime() {
+  let hh = parseInt(document.getElementById("hours").value) || 0;
+  let mm = parseInt(document.getElementById("minutes").value) || 0;
+  let ss = parseInt(document.getElementById("seconds").value) || 0;
+  let ampm = document.getElementById("ampmSelect").value;
+
+  // Convert to 24-hour format
+  if(ampm === "PM" && hh < 12) hh += 12;
+  if(ampm === "AM" && hh === 12) hh = 0;
+
+  let now = new Date();
+  customTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hh, mm, ss);
+}
+
+setInterval(updateClock, 1000);
+updateClock();
+</script>
+
+</body>
+</html>
